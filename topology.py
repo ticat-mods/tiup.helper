@@ -347,13 +347,13 @@ class Global:
 		return len(self.confs) + len(self.resource) == 0
 
 class TiUPYaml:
-	def __init__(self, env):
+	def __init__(self, env = None):
 		self.delta = ''
 		self.instances = {}
 		self.hosts_info = HostInstanceCounter()
 		self.glb = Global()
 
-		self.session = env
+		self.session = env or Env()
 		self.env = self.session.detach_prefix('deploy.')
 		self.user_set_location_label = self.env.has('conf.pd.replication.location-labels')
 		self._parse()
@@ -537,3 +537,8 @@ class TiUPYaml:
 		file.close()
 
 		return text, path
+
+if __name__ == '__main__':
+	env = Env(parse_from_env_file = False, parse_from_stdin = True)
+	yaml = TiUPYaml(env)
+	print(yaml.dump())
