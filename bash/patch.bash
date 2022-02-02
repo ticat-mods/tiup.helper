@@ -1,28 +1,32 @@
 function cluster_patch()
 {
-	local role="${1}"
+	local cluster="${1}"
+	local role="${2}"
+	echo "[:-] patching local '${role}' to cluster '${cluster}'"
 	local os=`_must_get_os_tiup_name`
 	local arch=`_must_get_arch_tiup_name`
 	tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
-	tiup cluster patch "${name}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes --offline
-	echo "[:)] patched local '${role}' to cluster '${name}'"
+	tiup cluster patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes #--offline
+	echo "[:)] patched local '${role}' to cluster '${cluster}'"
 }
 
 function path_patch()
 {
-	local path="${1}"
+	local cluster="${1}"
+	local path="${2}"
 	if [ -d "${path}" ]; then
 		(
 			cd "${path}";
 			if [ -f "tidb-server" ]; then
-				cluster_patch 'tidb'
+				cluster_patch "${cluster}" 'tidb'
 			fi
 			if [ -f "tikv-server" ]; then
-				cluster_patch 'tikv'
+				cluster_patch "${cluster}" 'tikv'
 			fi
 			if [ -f "pd-server" ]; then
-				cluster_patch 'pd'
+				cluster_patch "${cluster}" 'pd'
 			fi
+			# TODO: support tiflash
 		)
 	elif [ -f "${path}" ]; then
 		local base=`basename ${path}`
@@ -34,7 +38,7 @@ function path_patch()
 		fi
 		(
 			cd "${dir}";
-			cluster_patch "${role}"
+			cluster_patch "${cluster}" "${role}"
 		)
 	fi
 }
