@@ -7,7 +7,8 @@ function must_pd_leader_id()
 	set -e
 	if [ -z "${pd}" ]; then
 		set +e
-		local host_port=`tiup cluster display "${name}" -R pd | grep '\-\-\-' -A 99999 | grep 'L' | awk '{if ($2=="pd") print $3,$4}'`
+		local host_port=`tiup cluster display "${name}" -R pd | { grep '\-\-\-' -A 99999 || test $? = 1; } | \
+			{ grep 'L' || test $? = 1; } | awk '{if ($2=="pd") print $3,$4}'`
 		set -e
 		if [ ! -z "${host_port}" ]; then
 			local pd_host=`echo "${host_port}" | awk '{print $1}'`
