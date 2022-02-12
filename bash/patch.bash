@@ -2,11 +2,16 @@ function cluster_patch()
 {
 	local cluster="${1}"
 	local role="${2}"
+	local plain=''
+	if [ ! -z "${3+x}" ]; then
+		local plain="${3}"
+	fi
+
 	echo "[:-] patching local '${role}' to cluster '${cluster}'"
 	local os=`_must_get_os_tiup_name`
 	local arch=`_must_get_arch_tiup_name`
 	tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
-	tiup cluster patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes #--offline
+	tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes #--offline
 	echo "[:)] patched local '${role}' to cluster '${cluster}'"
 }
 
@@ -14,17 +19,22 @@ function path_patch()
 {
 	local cluster="${1}"
 	local path="${2}"
+	local plain=''
+	if [ ! -z "${3+x}" ]; then
+		local plain="${3}"
+	fi
+
 	if [ -d "${path}" ]; then
 		(
 			cd "${path}";
 			if [ -f "tidb-server" ]; then
-				cluster_patch "${cluster}" 'tidb'
+				cluster_patch "${cluster}" 'tidb' "${plain}"
 			fi
 			if [ -f "tikv-server" ]; then
-				cluster_patch "${cluster}" 'tikv'
+				cluster_patch "${cluster}" 'tikv' "${plain}"
 			fi
 			if [ -f "pd-server" ]; then
-				cluster_patch "${cluster}" 'pd'
+				cluster_patch "${cluster}" 'pd' "${plain}"
 			fi
 			# TODO: support tiflash
 		)
@@ -38,7 +48,7 @@ function path_patch()
 		fi
 		(
 			cd "${dir}";
-			cluster_patch "${cluster}" "${role}"
+			cluster_patch "${cluster}" "${role}" "${plain}"
 		)
 	fi
 }

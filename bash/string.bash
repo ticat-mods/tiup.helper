@@ -1,3 +1,15 @@
+function tiup_output_fmt_str()
+{
+	local env="${1}"
+	local plain=`env_val "${env}" 'tidb.tiup.plain-output'`
+	local plain=`to_false "${plain}"`
+	if [ "${plain}" == 'false' ]; then
+		echo ''
+	else
+		echo ' --format=plain'
+	fi
+}
+
 function tiup_confirm_str()
 {
 	local env="${1}"
