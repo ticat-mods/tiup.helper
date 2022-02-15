@@ -1,18 +1,29 @@
 function cluster_patch()
 {
-	local cluster="${1}"
-	local role="${2}"
+	local dir="${1}"
+	local cluster="${2}"
+	local role="${3}"
+
 	local plain=''
-	if [ ! -z "${3+x}" ]; then
-		local plain="${3}"
+	if [ ! -z "${4+x}" ]; then
+		local plain="${4}"
+	fi
+	if [ -z "${plain}" ]; then
+		local plain=' --format=plain'
 	fi
 
-	echo "[:-] patching local '${role}' to cluster '${cluster}'"
-	local os=`_must_get_os_tiup_name`
-	local arch=`_must_get_arch_tiup_name`
-	tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
-	tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes #--offline
-	echo "[:)] patched local '${role}' to cluster '${cluster}'"
+	(
+		echo "(${dir})"
+		cd "${dir}"
+		echo "[:-] patching local '${role}' to cluster '${cluster}'"
+		local os=`_must_get_os_tiup_name`
+		local arch=`_must_get_arch_tiup_name`
+		echo tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
+		tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
+		echo tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
+		tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
+		echo "[:)] patched local '${role}' to cluster '${cluster}'"
+	)
 }
 
 function path_patch()
@@ -25,19 +36,16 @@ function path_patch()
 	fi
 
 	if [ -d "${path}" ]; then
-		(
-			cd "${path}";
-			if [ -f "tidb-server" ]; then
-				cluster_patch "${cluster}" 'tidb' "${plain}"
-			fi
-			if [ -f "tikv-server" ]; then
-				cluster_patch "${cluster}" 'tikv' "${plain}"
-			fi
-			if [ -f "pd-server" ]; then
-				cluster_patch "${cluster}" 'pd' "${plain}"
-			fi
-			# TODO: support tiflash
-		)
+		if [ -f "tidb-server" ]; then
+			cluster_patch "${path}" "${cluster}" 'tidb' "${plain}"
+		fi
+		if [ -f "tikv-server" ]; then
+			cluster_patch "${path}" "${cluster}" 'tikv' "${plain}"
+		fi
+		if [ -f "pd-server" ]; then
+			cluster_patch "${path}" "${cluster}" 'pd' "${plain}"
+		fi
+		# TODO: support tiflash
 	elif [ -f "${path}" ]; then
 		local base=`basename ${path}`
 		local dir=`dirname ${path}`
@@ -46,10 +54,7 @@ function path_patch()
 			echo "[:(] unrecognized file '${path}'" >&2
 			exit 1
 		fi
-		(
-			cd "${dir}";
-			cluster_patch "${cluster}" "${role}" "${plain}"
-		)
+		cluster_patch "${dir}" "${cluster}" "${role}" "${plain}"
 	fi
 }
 
