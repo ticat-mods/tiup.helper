@@ -347,14 +347,15 @@ class Global:
 		return len(self.confs) + len(self.resource) == 0
 
 class TiUPYaml:
-	def __init__(self, env = None):
+	def __init__(self, env = None, depose_kvs = False):
 		self.delta = ''
 		self.instances = {}
 		self.hosts_info = HostInstanceCounter()
 		self.glb = Global()
+		self.depose_kvs = depose_kvs
 
 		self.session = env or Env()
-		self.env = self.session.detach_prefix('deploy.')
+		self.env = self.session.detach_prefix('deploy.', depose_kvs)
 		self.user_set_location_label = self.env.has('conf.pd.replication.location-labels')
 		self._parse()
 
@@ -390,7 +391,7 @@ class TiUPYaml:
 		self.instances[name] = service
 
 	def _parse_kvs(self, prefix, to):
-		kvs = self.env.detach_prefix(prefix)
+		kvs = self.env.detach_prefix(prefix, self.depose_kvs)
 		for k in kvs.keys():
 			v = kvs.get(k)
 			to[k] = v
@@ -540,5 +541,5 @@ class TiUPYaml:
 
 if __name__ == '__main__':
 	env = Env(parse_from_env_file = False, parse_from_stdin = True)
-	yaml = TiUPYaml(env)
+	yaml = TiUPYaml(env, depose_kvs = False)
 	print(yaml.dump())
