@@ -138,6 +138,7 @@ class Ports:
 		'monitoring':
 			{
 				'port': 9090,
+				'ng_port': 12020,
 			},
 		'grafana':
 			{
