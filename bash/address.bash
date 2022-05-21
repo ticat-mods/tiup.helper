@@ -15,7 +15,7 @@ function must_cluster_tidbs()
 	local tidbs=`cluster_tidbs "${name}"`
 	if [ -z "${tidbs}" ]; then
 		echo "[:(] no tidb found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${tidbs}"
 }
@@ -37,7 +37,7 @@ function must_cluster_tikvs()
 	local tikvs=`cluster_tikvs "${name}"`
 	if [ -z "${tikvs}" ]; then
 		echo "[:(] no tikv found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${tikvs}"
 }
@@ -59,7 +59,7 @@ function must_cluster_tiflashs()
 	local tiflashs=`cluster_tiflashs "${name}"`
 	if [ -z "${tiflashs}" ]; then
 		echo "[:(] no tiflash found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${tiflashs}"
 }
@@ -74,7 +74,7 @@ function must_cluster_pd()
 	set -e
 	if [ -z "${pd}" ]; then
 		echo "[:(] no pd found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${pd}"
 }
@@ -89,7 +89,7 @@ function must_pd_addr()
 	set -e
 	if [ -z "${pd}" ]; then
 		echo "[:(] no pd found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${pd%/*}"
 }
@@ -100,11 +100,11 @@ function must_prometheus_addr()
 	set +e
 	local prom=`tiup cluster display "${name}" 2>/dev/null | \
 		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
-		awk '{if ($2=="prometheus") print $3":"$4}'`
+		awk '{if ($2=="prometheus") print $3":"$4}' | awk -F '/' '{print $1}'`
 	set -e
 	if [ -z "${prom}" ]; then
 		echo "[:(] no prometheus found in cluster '${name}'" >&2
-		exit 1
+		return 1
 	fi
 	echo "${prom}"
 }
