@@ -356,7 +356,13 @@ class TiUPYaml:
 		self.depose_kvs = depose_kvs
 
 		self.session = env or Env()
+
+		# TODO: better way to keep the host list in env
+		hosts = self.session.get_ex('deploy.hosts', '')
 		self.env = self.session.detach_prefix('deploy.', depose_kvs)
+		if len(hosts) != 0:
+			self.session.set('deploy.hosts', hosts)
+
 		self.user_set_location_label = self.env.has('conf.pd.replication.location-labels')
 		self._parse()
 
