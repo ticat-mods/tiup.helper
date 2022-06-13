@@ -357,19 +357,7 @@ class TiUPYaml:
 
 		self.session = env or Env()
 
-		# TODO: better way to keep these in env: hosts, to_user, user
-		hosts = self.session.get_ex('deploy.hosts', '')
-		to_user = self.session.get_ex('deploy.to-user', '')
-		user = self.session.get_ex('deploy.user', '')
-
-		self.env = self.session.detach_prefix('deploy.', depose_kvs)
-
-		if len(hosts) != 0:
-			self.session.set('deploy.hosts', hosts)
-		if len(to_user) != 0:
-			self.session.set('deploy.to-user', to_user)
-		if len(user) != 0:
-			self.session.set('deploy.user', user)
+		self.env = self.session.detach_prefix('deploy.', False)
 
 		self.user_set_location_label = self.env.has('conf.pd.replication.location-labels')
 		self._parse()
