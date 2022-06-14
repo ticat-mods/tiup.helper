@@ -200,6 +200,14 @@ def parse_host_port(id):
 		return id, ''
 	return id[:i], id[i+1:]
 
+def is_float(s):
+	try:
+		float(s)
+	except ValueError:
+		return False
+	else:
+		return True
+
 def is_number(s):
 	if len(s) > 0 and (s[0] == '+' or s[0] == '-'):
 		return False
@@ -231,7 +239,7 @@ def assert_is_delta(n):
 		raise Exception(n + ' should be delta value, eg: +89, -88')
 
 def may_quote(s):
-	if is_number(s) or is_bool(s):
+	if is_number(s) or is_bool(s) or is_float(s):
 		return s
 	return '"' + s + '"'
 
