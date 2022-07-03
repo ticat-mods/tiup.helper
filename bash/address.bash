@@ -107,7 +107,7 @@ function must_pd_addr()
 	set +e
 	local pd=`tiup cluster display "${name}" 2>/dev/null | \
 		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
-		awk '{if ($2=="pd" && $6=="Up|L|UI") print $3":"$4}'`
+		awk '{if ($2=="pd" && $6~/^Up\|L/) print $3":"$4}'`
 	set -e
 	if [ -z "${pd}" ]; then
 		echo "[:(] no pd found in cluster '${name}'" >&2
