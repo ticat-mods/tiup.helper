@@ -12,6 +12,14 @@ function cluster_patch()
 		local plain=' --format=plain'
 	fi
 
+	local offline=''
+	if [ ! -z "${5+x}" ]; then
+		local offline=`to_true "${5}"`
+	fi
+	if [ "${offline}" == 'true' ]; then
+		local offline=" --offline"
+	fi
+
 	(
 		echo "(${dir})"
 		cd "${dir}"
@@ -20,8 +28,8 @@ function cluster_patch()
 		local arch=`_must_get_arch_tiup_name`
 		echo tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
 		tar -czvf "${role}-local-${os}-${arch}.tar.gz" "${role}-server"
-		echo tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
-		tiup cluster${plain} patch "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
+		echo tiup cluster${plain} patch${offline} "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
+		tiup cluster${plain} patch${offline} "${cluster}" "${role}-local-${os}-${arch}.tar.gz" -R "${role}" --yes
 		echo "[:)] patched local '${role}' to cluster '${cluster}'"
 	)
 }
@@ -34,16 +42,20 @@ function path_patch()
 	if [ ! -z "${3+x}" ]; then
 		local plain="${3}"
 	fi
+	local offline=''
+	if [ ! -z "${4+x}" ]; then
+		local offline="${4}"
+	fi
 
 	if [ -d "${path}" ]; then
 		if [ -f "tidb-server" ]; then
-			cluster_patch "${path}" "${cluster}" 'tidb' "${plain}"
+			cluster_patch "${path}" "${cluster}" 'tidb' "${plain}" "${offline}"
 		fi
 		if [ -f "tikv-server" ]; then
-			cluster_patch "${path}" "${cluster}" 'tikv' "${plain}"
+			cluster_patch "${path}" "${cluster}" 'tikv' "${plain}" "${offline}"
 		fi
 		if [ -f "pd-server" ]; then
-			cluster_patch "${path}" "${cluster}" 'pd' "${plain}"
+			cluster_patch "${path}" "${cluster}" 'pd' "${plain}" "${offline}"
 		fi
 		# TODO: support tiflash
 	elif [ -f "${path}" ]; then
@@ -54,7 +66,7 @@ function path_patch()
 			echo "[:(] unrecognized file '${path}'" >&2
 			exit 1
 		fi
-		cluster_patch "${dir}" "${cluster}" "${role}" "${plain}"
+		cluster_patch "${dir}" "${cluster}" "${role}" "${plain}" "${offline}"
 	fi
 }
 
