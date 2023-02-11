@@ -3,7 +3,7 @@ function cluster_tidbs()
 	local name="${1}"
 	set +e
 	local tidbs=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="tidb") print $1}'`
 	set -e
 	echo "${tidbs}"
@@ -25,7 +25,7 @@ function cluster_tikvs()
 	local name="${1}"
 	set +e
 	local tikvs=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="tikv") print $1}'`
 	set -e
 	echo "${tikvs}"
@@ -47,7 +47,7 @@ function cluster_tiflashs()
 	local name="${1}"
 	set +e
 	local tiflashs=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="tiflash") print $1}'`
 	set -e
 	echo "${tiflashs}"
@@ -69,7 +69,7 @@ function cluster_dashboard()
 	local name="${1}"
 	set +e
 	local dashboard=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -B 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -B 9999 || test $? = 1; } | \
 		{ grep 'dashboard' || test $? = 1; } | awk '{print $NF}'`
 	set -e
 	echo "${dashboard}"
@@ -80,7 +80,7 @@ function cluster_grafana()
 	local name="${1}"
 	set +e
 	local grafana=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="grafana") print $1}'`
 	set -e
 	echo "${grafana}"
@@ -91,7 +91,7 @@ function must_cluster_pd()
 	local name="${1}"
 	set +e
 	local pd=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="pd") print $1}'`
 	set -e
 	if [ -z "${pd}" ]; then
@@ -106,7 +106,7 @@ function must_pd_addr()
 	local name="${1}"
 	set +e
 	local pd=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="pd" && $6~/^Up\|L/) print $3":"$4}'`
 	set -e
 	if [ -z "${pd}" ]; then
@@ -121,7 +121,7 @@ function must_prometheus_addr()
 	local name="${1}"
 	set +e
 	local prom=`tiup cluster display "${name}" 2>/dev/null | \
-		{ grep '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
+		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="prometheus") print $3":"$4}' | awk -F '/' '{print $1}'`
 	set -e
 	if [ -z "${prom}" ]; then

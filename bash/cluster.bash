@@ -14,7 +14,7 @@ function _cluster_meta()
 	local name="${1}"
 	tiup cluster list 2>/dev/null | \
 		{ grep -v 'PrivateKey$' || test $? = 1; } | \
-		{ grep -v '\-\-\-\-\-\-\-$' || test $? = 1; } | \
+		{ grep -P -v '\-\-\-\-\-\-\-$' || test $? = 1; } | \
 		{ grep "^${name} " || test $? = 1; }
 }
 
