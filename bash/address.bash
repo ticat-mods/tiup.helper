@@ -116,7 +116,7 @@ function must_pd_addr()
 	echo "${pd%/*}"
 }
 
-function must_prometheus_addr()
+function prometheus_addr()
 {
 	local name="${1}"
 	set +e
@@ -124,6 +124,13 @@ function must_prometheus_addr()
 		{ grep -P '\-\-\-\-\-\-\-$' -A 9999 || test $? = 1; } | \
 		awk '{if ($2=="prometheus") print $3":"$4}' | awk -F '/' '{print $1}'`
 	set -e
+	echo "${prom}"
+}
+
+function must_prometheus_addr()
+{
+	local name="${1}"
+	local prom=`prometheus_addr "${name}"`
 	if [ -z "${prom}" ]; then
 		echo "[:(] no prometheus found in cluster '${name}'" >&2
 		return 1
